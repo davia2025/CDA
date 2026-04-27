@@ -2,6 +2,8 @@ from finalproject.DownloadData import getData
 from finalproject.getGenreClusters import genreClusters
 from finalproject.dimReduction import poster_dim_reduction
 from finalproject.compare_clusters import comparing_clusters
+from finalproject.recommender import run_recommendation_pipeline
+from finalproject.recommender import plot_rmse_comparison
 import numpy as np
 import pandas as pd
 
@@ -25,5 +27,18 @@ adjusted_rand, v_measure, clustered_movies = comparing_clusters(reduced_posters,
 cluster_metrics = pd.DataFrame({"adjustedRand": [adjusted_rand], "homogeneity": [v_measure[0]], "completeness": [v_measure[1]], "v_measure": [v_measure[2]]})
 cluster_metrics.to_parquet("./data/outputs/cluster_metrics.parquet")
 clustered_movies.to_parquet("./data/outputs/movies_with_clusters.parquet")
+# recommendation system
+results = run_recommendation_pipeline(
+    ratings=ratings,
+    movie_ids=movie_ids,
+    visual_embeddings=reduced_posters
+)
+# Save results
+results_df = pd.DataFrame(results)
+results_df.to_parquet("./data/outputs/recommendation_results.parquet")
+plot_rmse_comparison(results)
+
+print("\nFinal Results:")
+print(results_df)
 
 
